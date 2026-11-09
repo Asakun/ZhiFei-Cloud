@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OIDC 客户端测试页</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+        body { max-width: 900px; margin: 20px auto; padding: 20px; background-color: #f5f5f5; }
+        .container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h2 { margin-bottom: 15px; }
+        .config-item { margin-bottom: 10px; }
+        .config-item label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 14px; }
+        .config-item input { width: 100%; padding: 8px 12px; border: 1px solid #ced4da; border-radius: 4px; font-family: monospace; font-size: 13px; }
+        .controls { margin: 15px 0; display: flex; gap: 10px; flex-wrap: wrap; }
+        button { padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; background-color: #007bff; color: white; font-size: 14px; }
+        button:hover { opacity: .9; }
+        button#logout { background-color: #dc3545; }
+        .status { margin-left: 8px; font-size: 13px; color: #6c757d; }
+        .card { margin-top: 16px; border: 1px solid #ced4da; border-radius: 4px; padding: 12px; }
+        .card h3 { font-size: 14px; color: #007bff; margin-bottom: 8px; }
+        pre { background-color: #f8f9fa; border-radius: 4px; padding: 10px; font-size: 12px; line-height: 1.5; overflow: auto; max-height: 320px; word-break: break-all; white-space: pre-wrap; }
+        table { border-collapse: collapse; width: 100%; font-size: 13px; }
+        td { border-bottom: 1px solid #eaeef2; padding: 6px 8px; vertical-align: top; }
+        td.k { color: #6c757d; width: 220px; font-family: monospace; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>OIDC 客户端测试页</h2>
+    <p style="font-size:13px;color:#6c757d;margin-bottom:15px;">
+        本页用于测试 sample 作为 OIDC 客户端（RP）的登录流程。点击「开始 OIDC 登录」会跳转到
+        服务端 A 的授权端点，登录后回调 <code>/manage/api/v1/login/oidc/callback</code> 并返回本地 token。
+    </p>
+
+    <div class="config-item">
+        <label for="baseUrl">sample 服务地址</label>
+        <input type="text" id="baseUrl" value="http://localhost:6789" placeholder="例如 http://localhost:6789">
+    </div>
+
+    <div class="config-item">
+        <label for="provider">OIDC 服务端 (provider id)</label>
+        <input type="text" id="provider" value="oidc-test" placeholder="例如 oidc-test">
+    </div>
+
+    <div class="controls">
+        <button id="login">开始 OIDC 登录</button>
+        <button id="refresh">刷新结果</button>
+        <button id="logout">登出</button>
+        <span class="status" id="status"></span>
+    </div>
+
+    <div class="card hidden" id="card-error">
+        <h3>错误</h3>
+        <pre id="error-body"></pre>
+    </div>
+
+    <div class="card hidden" id="card-user">
+        <h3>本地用户信息</h3>
+        <table id="user-table"></table>
+    </div>
+
+    <div class="card hidden" id="card-token">
+        <h3>本地 access_token (x-auth-token)</h3>
+        <pre id="access-token"></pre>
+    </div>
+
+    <div class="card hidden" id="card-raw">
+        <h3>完整响应</h3>
+        <pre id="raw-response"></pre>
+    </div>
+</div>
+
+<script>
+    const $ = (id) => document.getElementById(id);
+
+    // 从 URL 中读取回调返回的 code / state（若当前页就是回调页）
+    const params = new URLSearchParams(window.location.search);
+
+    function setStatus(text) { $('status').textContent = text || ''; }
+
+    function show(id, visible) { $(id).classList.toggle('hidden', !visible); }
+
+    function baseUrl() { return $('baseUrl').value.trim().replace(/\/$/, ''); }
+
+    function provider() { return $('provider').value.trim() || 'oidc-test'; }
+
+    function renderTable(tableId, obj) {
+        const table = $(tableId);
+        table.innerHTML = '';
+        Object.keys(obj).forEach((key) => {
+            const tr = document.createElement('tr');
+            const kd = document.createElement('td');
+            kd.className = 'k';
+            kd.textContent = key;
+            const vd = document.createElement('td');
+            const value = obj[key];
+            vd.textContent = typeof value === 'object' ? JSON.stringify(value) : String(value);
+            tr.appendChild(kd);
+            tr.appendChild(vd);
+            table.appendChild(tr);
+        });
+    }
+
+    function renderResult(data) {
+        show('card-error', false);
+        show('card-user', false);
+        show('card-token', false);
+        show('card-raw', false);
+
+        if (!data) {
+            setStatus('暂无结果，请先登录。');
+            return;
+        }
+        if (data.code !== 0) {
+            $('error-body').textContent = JSON.stringify(data, null, 2);
+            show('card-error', true);
+            setStatus('失败');
+            return;
+        }
+
+        const user = data.data || {};
+        renderTable('user-table', user);
+        show('card-user', true);
+
+        if (user.access_token) {
+            $('access-token').textContent = user.access_token;
+            show('card-token', true);
+        }
+        $('raw-response').textContent = JSON.stringify(data, null, 2);
+        show('card-raw', true);
+        setStatus('已加载');
+    }
+
+    // 若当前是回调页（URL 带 code/state），把结果展示出来
+    function handleCallbackIfPresent() {
+        const code = params.get('code');
+        const state = params.get('state');
+        if (!code) {
+            return false;
+        }
+        // 回调路径里带 provider；若从 URL 无法判断，则用登录前保存的值
+        const pathProvider = (window.location.pathname.match(/\/login\/oidc\/([^/]+)\/callback/) || [])[1];
+        const usedProvider = pathProvider || sessionStorage.getItem('oidc_provider') || provider();
+        setStatus('回调返回，正在换取本地 token…');
+        fetch(baseUrl() + '/manage/api/v1/login/oidc/' + encodeURIComponent(usedProvider) + '/callback?code=' +
+            encodeURIComponent(code) + '&state=' + encodeURIComponent(state),
+            { credentials: 'include' })
+            .then((res) => res.json())
+            .then(renderResult)
+            .catch((e) => setStatus('回调处理失败: ' + e.message));
+        return true;
+    }
+
+    $('login').addEventListener('click', () => {
+        const p = provider();
+        sessionStorage.setItem('oidc_provider', p);
+        setStatus('跳转到服务端 ' + p + '…');
+        window.location.href = baseUrl() + '/manage/api/v1/login/oidc/' + encodeURIComponent(p);
+    });
+
+    $('refresh').addEventListener('click', () => {
+        setStatus('刷新中…');
+        const token = $('access-token').textContent;
+        if (!token) {
+            setStatus('暂无 token，请先登录。');
+            return;
+        }
+        fetch(baseUrl() + '/manage/api/v1/users/current', {
+            headers: { 'x-auth-token': token }
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                renderResult({ code: 0, data: Object.assign({ access_token: token }, data.data || {}) });
+            })
+            .catch((e) => setStatus('刷新失败: ' + e.message));
+    });
+
+    $('logout').addEventListener('click', () => {
+        $('access-token').textContent = '';
+        show('card-error', false);
+        show('card-user', false);
+        show('card-token', false);
+        show('card-raw', false);
+        setStatus('已清除本地展示（服务端会话需另行登出）');
+    });
+
+    if (!handleCallbackIfPresent()) {
+        setStatus('就绪');
+    }
+</script>
+</body>
+</html>

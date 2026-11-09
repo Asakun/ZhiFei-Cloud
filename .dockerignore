@@ -1,0 +1,45 @@
+# ============================================================================
+# Docker build context exclusions.
+#
+# NOTE: the Dockerfile runs `mvn clean package`, so the Maven sources
+# (src/, pom.xml, mvnw, .mvn) MUST stay in the context. Only content that is
+# not needed for the build — or that the Dockerfile deletes afterwards — is
+# excluded here to keep the image and build cache small.
+# ============================================================================
+
+# --- Version control / IDE ---
+.git
+.gitignore
+.gitattributes
+.idea
+*.iml
+.vscode
+*.swp
+*~
+
+# --- Build output (rebuilt inside the image) ---
+**/target
+**/build
+**/out
+
+# --- Docs / API collections / SQL (deleted by the Dockerfile anyway) ---
+api
+sql
+logs
+*.md
+LICENSE
+
+# --- Docker files themselves ---
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# --- Local / runtime artifacts ---
+*.log
+logs/
+*.pid
+*.tmp
+
+# --- OS noise ---
+.DS_Store
+Thumbs.db

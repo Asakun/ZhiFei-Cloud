@@ -1,0 +1,228 @@
+server:
+  port: ${SERVER_PORT:6789}
+spring:
+  profiles:
+    active: test
+  main:
+    allow-bean-definition-overriding: true
+  application:
+    name: ${APP_NAME:cloud-api-sample}
+  datasource:
+    druid:
+      type: com.alibaba.druid.pool.DruidDataSource
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://${DB_URL:172.17.0.1:3306}/cloud_sample?useSSL=false&allowPublicKeyRetrieval=true
+      username: ${DB_USERNAME:root}
+      password: ${DB_PASSWORD:root}
+      initial-size: 10
+      min-idle: 10
+      max-active: 20
+      max-wait: 60000
+  jpa:
+    hibernate:
+      ddl-auto: update  # 自动更新表结构
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+        use_sql_comments: true
+        globally_quoted_identifiers: true
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+
+  redis:
+    host: ${REDIS_HOST:172.17.0.1}
+    port: ${REDIS_PORT:6379}
+    database: ${REDIS_DATABASE:0}
+    username: # if you enable
+    password: ${REDIS_PASSWORD:admin}
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+
+  servlet:
+    multipart:
+      max-file-size: 2GB
+      max-request-size: 2GB
+
+  captcha:
+    expire: ${CAPTCHA_EXPIRE:120} # 验证码过期时间（秒）
+    width: 120 # 验证码图片宽度
+    height: 40 # 验证码图片高度
+    fail-limit: 5
+
+rsa:
+  key:
+    size: 2048
+
+jwt:
+  issuer: DJI
+  subject: CloudApiSample
+  secret: ${JWT_SECRET:CloudApiSample}
+  age: 43200
+
+# OIDC client (this service acts as the Relying Party).
+# Only the on/off switch lives here. Per-provider configuration (client id/secret, issuer,
+# endpoints, keys, ...) is stored in the database (oidc_provider table) and managed through
+# the management API: /manage/api/v1/oidc/providers
+# Login URLs (provider id appears in the path):
+#   /manage/api/v1/login/oidc/{provider}          -> start login
+#   /manage/api/v1/login/oidc/{provider}/callback -> callback
+oidc:
+  enabled: ${OIDC_ENABLED:false}
+
+init:
+  database:
+    admin-name: ${INIT_DATABASE_ADMIN:adminPC}
+    workspace-name: ${INIT_DATABASE_WORKSPACE:Group One}
+    bind-code: ${INIT_DATABASE_BIND_CODE:qwe}
+
+mqtt:
+  # @see com.dji.sample.component.mqtt.model.MqttUseEnum
+  # BASIC parameters are required.
+  BASIC:
+    protocol: MQTT # @see com.dji.sample.component.mqtt.model.MqttProtocolEnum
+    host: ${MQTT_BASIC_HOST:172.17.0.1}
+    port: ${MQTT_BASIC_PORT:1883}
+    username: ${MQTT_BASIC_USERNAME:JavaServer}
+    password: ${MQTT_BASIC_PASSWORD:123456}
+    client-id: ${MQTT_BASIC_CLIENT_ID:123456}
+    # If the protocol is ws/wss, this value is required.
+    path:
+  DRC:
+    protocol: WS # @see com.dji.sample.component.mqtt.model.MqttProtocolEnum
+    host: ${MQTT_DRC_HOST:172.17.0.1}
+    port: ${MQTT_DRC_PORT:8083}
+    path: /mqtt
+    username: ${MQTT_DRC_USERNAME:JavaServer}
+    password: ${MQTT_DRC_PASSWORD:123456}
+
+cloud-sdk:
+  mqtt:
+    # Topics that need to be subscribed when initially connecting to mqtt, multiple topics are divided by ",".
+    inbound-topic: sys/product/+/status,thing/product/+/requests
+
+url:
+  manage:
+    prefix: manage
+    version: /api/v1
+  map:
+    prefix: map
+    version: /api/v1
+  media:
+    prefix: media
+    version: /api/v1
+  wayline:
+    prefix: wayline
+    version: /api/v1
+  storage:
+    prefix: storage
+    version: /api/v1
+  control:
+    prefix: control
+    version: /api/v1
+  psdk:
+    prefix: psdk
+    version: /api/v1
+  proxy:
+    prefix: proxy
+
+proxy:
+  emqx:
+    url: ${PROXY_EMQX_URL:http://192.168.1.1:800}
+    username: ${PROXY_EMQX_USERNAME:admin}
+    password: ${PROXY_EMQX_PASSWORD:password}
+
+# Tutorial: https://www.alibabacloud.com/help/en/object-storage-service/latest/use-a-temporary-credential-provided-by-sts-to-access-oss
+#oss:
+#  enable: false
+#  provider: ALIYUN # @see com.dji.sample.component.OssConfiguration.model.enums.OssTypeEnum
+#  endpoint: https://oss-cn-hangzhou.aliyuncs.com
+#  access-key: Please enter your access key.
+#  secret-key: Please enter your secret key.
+#  expire: 3600
+#  region: Please enter your oss region. # cn-hangzhou
+#  role-session-name: cloudApi
+#  role-arn: Please enter your role arn. # acs:ram::123456789:role/stsrole
+#  bucket: Please enter your bucket name.
+#  object-dir-prefix: Please enter a folder name.
+
+#oss:
+#  enable: true
+#  provider: aws
+#  endpoint: https://s3.us-east-1.amazonaws.com
+#  access-key:
+#  secret-key:
+#  expire: 3600
+#  region: us-east-1
+#  role-session-name: cloudApi
+#  role-arn:
+#  bucket: cloudapi-bucket
+#  object-dir-prefix: wayline
+
+oss:
+  enable: true
+  provider: minio
+  endpoint: ${OSS_ENDPOINT:http://192.168.1.1:9000}
+  access-key: ${OSS_ACCESS_KEY:minioadmin}
+  secret-key: ${OSS_SECRET_KEY:minioadmin}
+  bucket: ${OSS_BUCKET:cloud-bucket}
+  expire: 3600
+  region: cn-hangzhou
+  object-dir-prefix: cloud_api_
+
+logging:
+  level:
+    com.dji: ${LOG_LEVEL:debug}
+  file:
+    name: logs/cloud-api-sample.log
+  logback:
+    rollingpolicy:
+      max-file-size: 100MB
+      max-history: 100
+      file-name-pattern: "${LOG_FILE}.%d{yyyy-MM-dd}.%i.log.gz"
+
+ntp:
+  server:
+    host: ntp.aliyun.com
+
+# To create a license for an application: https://developer.dji.com/user/apps/#all
+cloud-api:
+  app:
+    id: ${CLOUD_API_APP_ID}
+    key: ${CLOUD_API_APP_KEY}
+    license: ${CLOUD_API_APP_LICENSE}
+
+livestream:
+  url:
+    # It is recommended to use a program to create Token. https://github.com/AgoraIO/Tools/blob/master/DynamicKey/AgoraDynamicKey/java/src/main/java/io/agora/media/RtcTokenBuilder2.java
+    agora:
+      channel: Please enter the agora channel.
+      token: Please enter the agora temporary token.
+      uid:  654321
+
+    # RTMP  Note: This IP is the address of the streaming server. If you want to see livestream on web page, you need to convert the RTMP stream to WebRTC stream.
+    rtmp:
+      url: Please enter the rtmp access address.  # Example: 'rtmp://192.168.1.1/live/'
+    rtsp:
+      username: Please enter the username.
+      password: Please enter the password.
+      port: 8554
+
+    # GB28181 Note:If you don't know what these parameters mean, you can go to Pilot2 and select the GB28181 page in the cloud platform. Where the parameters same as these parameters.
+    gb28181:
+      serverIP: Please enter the server ip.
+      serverPort: 5060
+      apiPort: 18978
+      apiKey: wvp api key
+      serverID: Please enter the server id.
+      agentID: Please enter the agent id.
+      agentPassword: Please enter the agent password.
+      localPort: 5060
+      channel: Please enter the channel.
+
+    # Webrtc: Only supports using whip standard
+    whip:
+      url: ${LIVESTREAM_WHIP_URL:http://172.17.0.1:1985/rtc/v1/whip/?app=live&stream=}
