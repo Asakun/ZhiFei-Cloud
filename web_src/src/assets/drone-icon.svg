@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <!-- Main body -->
+  <ellipse cx="50" cy="50" rx="8" ry="6" fill="currentColor"/>
+  
+  <!-- Arms -->
+  <line x1="50" y1="50" x2="25" y2="25" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="50" y1="50" x2="75" y2="25" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="50" y1="50" x2="25" y2="75" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="50" y1="50" x2="75" y2="75" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+  
+  <!-- Motors -->
+  <circle cx="25" cy="25" r="4" fill="currentColor"/>
+  <circle cx="75" cy="25" r="4" fill="currentColor"/>
+  <circle cx="25" cy="75" r="4" fill="currentColor"/>
+  <circle cx="75" cy="75" r="4" fill="currentColor"/>
+  
+  <!-- Propellers -->
+  <!-- Top-left propeller -->
+  <ellipse cx="25" cy="25" rx="10" ry="3" fill="currentColor" opacity="0.6"/>
+  <ellipse cx="25" cy="25" rx="3" ry="10" fill="currentColor" opacity="0.6"/>
+  
+  <!-- Top-right propeller -->
+  <ellipse cx="75" cy="25" rx="10" ry="3" fill="currentColor" opacity="0.6"/>
+  <ellipse cx="75" cy="25" rx="3" ry="10" fill="currentColor" opacity="0.6"/>
+  
+  <!-- Bottom-left propeller -->
+  <ellipse cx="25" cy="75" rx="10" ry="3" fill="currentColor" opacity="0.6"/>
+  <ellipse cx="25" cy="75" rx="3" ry="10" fill="currentColor" opacity="0.6"/>
+  
+  <!-- Bottom-right propeller -->
+  <ellipse cx="75" cy="75" rx="10" ry="3" fill="currentColor" opacity="0.6"/>
+  <ellipse cx="75" cy="75" rx="3" ry="10" fill="currentColor" opacity="0.6"/>
+  
+  <!-- Camera/Gimbal -->
+  <circle cx="50" cy="58" r="3.5" fill="currentColor" opacity="0.8"/>
+  <rect x="48" y="54" width="4" height="4" rx="1" fill="currentColor"/>
+</svg>

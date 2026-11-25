@@ -1,0 +1,414 @@
+/* 设计图 1440px，基准 16px */
+// @media (min-width:1920px){ html { font-size: 21.33px; } }  /* 16*1.333 */
+// @media (min-width:1440px) and (max-width:1919px){ html { font-size: 16px; } }
+// @media (min-width:1280px) and (max-width:1439px){ html { font-size: 14px; } }
+// @media (max-width:1279px){ html { font-size: 12px; } }
+
+html {
+    font-size: clamp(12px, calc(100vw * 16 / 1440), 24px);
+}
+
+// 分页器
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: clamp(16px, 0vw, 24px);
+    padding: clamp(12px, 0vw, 20px);
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+
+    :deep(.ant-pagination) {
+
+        .ant-pagination-item,
+        .ant-pagination-prev,
+        .ant-pagination-next {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.2);
+
+            a {
+                color: #ffffff;
+            }
+
+            &:hover {
+                background: rgba(255, 255, 255, 0.1);
+                border-color: #00ee8b;
+            }
+        }
+
+        .ant-pagination-item-active {
+            background: linear-gradient(135deg, #00ee8b, #00d4ff);
+            border-color: transparent;
+
+            a {
+                color: #ffffff;
+            }
+        }
+
+        .ant-pagination-total-text,
+        .ant-pagination-options {
+            color: #ffffff;
+        }
+    }
+}
+
+/* 全局覆盖 Ant Design 清除按钮样式，移除背景色并适配深色主题 */
+.ant-select-clear,
+.ant-input-clear-icon,
+.ant-picker-clear,
+.ant-input-affix-wrapper-clear-icon {
+    background-color: transparent !important;
+    background: transparent !important;
+    color: rgba(255, 255, 255, 0.5) !important;
+    line-height: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: color 0.3s;
+
+    &:hover {
+        color: #ffffff !important;
+    }
+
+    // 解决部分版本中图标可能被遮挡或偏移的问题
+    svg {
+        margin: 0 !important;
+    }
+}
+
+/* 全局覆盖 Ant Design 输入框等组件的 placeholder 颜色，避免与背景色融合 */
+.ant-input::placeholder,
+.ant-input-affix-wrapper input::placeholder,
+.ant-select-selection-placeholder,
+.ant-picker-input > input::placeholder,
+textarea.ant-input::placeholder {
+    color: rgba(255, 255, 255, 0.45) !important;
+}
+
+/* 项目级全局覆盖 Ant Design 按钮禁用状态 (a-button disabled)
+   解决 disable 状态下背景色与字体颜色同为深色导致看不清文字的问题 */
+.ant-btn[disabled],
+.ant-btn-disabled,
+.ant-btn:disabled,
+button[disabled].ant-btn {
+    color: rgba(255, 255, 255, 0.65) !important;
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(255, 255, 255, 0.18) !important;
+    text-shadow: none !important;
+    box-shadow: none !important;
+    cursor: not-allowed !important;
+    opacity: 0.85 !important;
+
+    > span {
+        color: inherit !important;
+    }
+
+    /* 主要按钮 (type="primary") 禁用状态 */
+    &.ant-btn-primary {
+        color: rgba(255, 255, 255, 0.65) !important;
+        background-color: rgba(58, 122, 249, 0.25) !important;
+        border-color: rgba(58, 122, 249, 0.35) !important;
+    }
+
+    /* 默认按钮 (type="default") 禁用状态 */
+    &.ant-btn-default {
+        color: rgba(255, 255, 255, 0.65) !important;
+        background-color: rgba(255, 255, 255, 0.08) !important;
+        border-color: rgba(255, 255, 255, 0.2) !important;
+    }
+
+    /* 虚线按钮 (type="dashed") 禁用状态 */
+    &.ant-btn-dashed {
+        color: rgba(255, 255, 255, 0.5) !important;
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        border-color: rgba(255, 255, 255, 0.15) !important;
+    }
+
+    /* 链接按钮 (type="link") 禁用状态 */
+    &.ant-btn-link {
+        color: rgba(255, 255, 255, 0.35) !important;
+        background-color: transparent !important;
+        border-color: transparent !important;
+    }
+
+    /* 文本按钮 (type="text") 禁用状态 */
+    &.ant-btn-text {
+        color: rgba(255, 255, 255, 0.35) !important;
+        background-color: transparent !important;
+        border-color: transparent !important;
+    }
+}
+
+/* 项目级全局覆盖 Ant Design Modal.confirm 确认弹窗深色主题与白色文本样式 */
+.ant-modal-confirm,
+.dark-confirm-modal {
+    .ant-modal-content {
+        background: #142b5b !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        border-radius: 10px !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+        color: #ffffff !important;
+    }
+
+    .ant-modal-header {
+        background: transparent !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+
+    .ant-modal-confirm-title,
+    .ant-modal-title {
+        color: #ffffff !important;
+        font-weight: 600 !important;
+    }
+
+    .ant-modal-confirm-content {
+        color: rgba(255, 255, 255, 0.85) !important;
+        font-size: 14px !important;
+        margin-top: 8px !important;
+    }
+
+    .ant-modal-confirm-btns {
+        margin-top: 20px !important;
+
+        .ant-btn-default {
+            background: rgba(255, 255, 255, 0.1) !important;
+            border-color: rgba(255, 255, 255, 0.2) !important;
+            color: #ffffff !important;
+
+            &:hover {
+                background: rgba(255, 255, 255, 0.2) !important;
+                border-color: rgba(255, 255, 255, 0.3) !important;
+            }
+        }
+    }
+}
+
+/* 隐藏 Cesium 底部版权、Logo 及 Ion Token 默认提示条 */
+.cesium-widget-credits {
+    display: none !important;
+}
+
+/* 禁用 Cesium 原生默认 InfoBox 弹窗与选中绿色线框 */
+.cesium-infoBox,
+.cesium-selection-wrapper {
+    display: none !important;
+}
+
+/* ==========================================================================
+   全局深色模式 Ant Design 数字输入框 (a-input-number) UI 重新设计
+   核心优化：
+   1. 释放内容空间：缩减步进按钮宽度与内边距（小尺寸占用由 48px 降至 20px，释放 80%+ 内容区域）
+   2. 交互状态优化：平时保持纯净数值视图（透明隐藏），鼠标悬停/聚焦时平滑显现步进调节按钮
+   3. 尺寸梯度适配：精细化适配默认 (32px)、小尺寸 (24px) 与大尺寸 (40px)，不再强制 34px 高度
+   4. 无按钮模式适配：针对 :controls="false" (.ant-input-number-without-controls) 移除冗余边距，100% 留给内容
+   5. 等宽数字字体：使用 tabular-nums 紧凑排布，数字对齐且长数字（经纬度、小数）不溢出
+   ========================================================================== */
+.ant-input-number {
+    --number-input-handler-width: 18px;
+    --number-input-height: 32px;
+    --number-input-border: rgba(255, 255, 255, 0.18);
+    --number-input-bg: #222222;
+    --number-input-handler-bg: #2d2d2d;
+    --number-input-handler-hover: #3a3a3a;
+    --number-input-text: #ffffff;
+    --number-input-primary: #00f0ff;
+
+    position: relative;
+    background-color: var(--number-input-bg) !important;
+    border: 1px solid var(--number-input-border) !important;
+    color: var(--number-input-text) !important;
+    border-radius: 4px !important;
+    height: var(--number-input-height);
+    min-height: var(--number-input-height);
+    line-height: calc(var(--number-input-height) - 2px);
+    overflow: hidden;
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+
+    &:hover {
+        border-color: var(--number-input-primary) !important;
+    }
+
+    &.ant-input-number-focused,
+    &:focus,
+    &:focus-within {
+        border-color: var(--number-input-primary) !important;
+        box-shadow: 0 0 0 2px rgba(0, 240, 255, 0.2) !important;
+    }
+
+    .ant-input-number-input-wrap {
+        height: 100%;
+        width: 100%;
+    }
+
+    .ant-input-number-input {
+        color: var(--number-input-text) !important;
+        background-color: transparent !important;
+        font-variant-numeric: tabular-nums;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Consolas', monospace;
+        font-size: 13px;
+        height: 100% !important;
+        line-height: calc(var(--number-input-height) - 2px) !important;
+        /* 大幅缩减边距：左内边距仅 6px，右侧预留紧凑步进区域 20px (大幅减少原来 38px 的占位) */
+        padding: 0 calc(var(--number-input-handler-width) + 2px) 0 6px !important;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* 步进按钮区域：默认隐入背景以释放内容可视区域，鼠标悬停或聚焦时平滑显示 */
+    .ant-input-number-handler-wrap {
+        background-color: var(--number-input-handler-bg) !important;
+        border-left: 1px solid var(--number-input-border) !important;
+        opacity: 0;
+        pointer-events: none;
+        border-radius: 0 4px 4px 0 !important;
+        width: var(--number-input-handler-width) !important;
+        min-width: var(--number-input-handler-width) !important;
+        position: absolute !important;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+
+    /* 悬停、聚焦或带 .handler-always-visible 类时平滑显现调节按钮 */
+    &:hover .ant-input-number-handler-wrap,
+    &.ant-input-number-focused .ant-input-number-handler-wrap,
+    &:focus-within .ant-input-number-handler-wrap,
+    &.handler-always-visible .ant-input-number-handler-wrap {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .ant-input-number-handler {
+        border-color: var(--number-input-border) !important;
+        height: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        min-height: 0;
+        transition: background-color 0.15s !important;
+
+        &:hover {
+            background-color: var(--number-input-handler-hover) !important;
+        }
+
+        /* 上下箭头图标：科技青色高亮，紧凑不占位 */
+        .ant-input-number-handler-up-inner,
+        .ant-input-number-handler-down-inner {
+            color: var(--number-input-primary) !important;
+            font-size: 10px !important;
+            font-weight: bold !important;
+            line-height: 1 !important;
+            transition: color 0.15s, transform 0.15s !important;
+        }
+
+        &:hover .ant-input-number-handler-up-inner,
+        &:hover .ant-input-number-handler-down-inner {
+            color: #ffffff !important;
+            transform: scale(1.15) !important;
+        }
+
+        &.ant-input-number-handler-down {
+            border-top: 1px solid var(--number-input-border) !important;
+        }
+    }
+
+    /* --------------------------------------------------------------------------
+       小尺寸 (.ant-input-number-sm, 如驾驶舱速度、经纬度、表格、工具栏等紧凑型输入框)
+       -------------------------------------------------------------------------- */
+    &.ant-input-number-sm {
+        --number-input-handler-width: 14px;
+        --number-input-height: 24px;
+        border-radius: 3px !important;
+
+        .ant-input-number-input {
+            font-size: 12px !important;
+            padding: 0 calc(var(--number-input-handler-width) + 2px) 0 4px !important;
+        }
+
+        .ant-input-number-handler {
+            .ant-input-number-handler-up-inner,
+            .ant-input-number-handler-down-inner {
+                font-size: 8px !important;
+            }
+        }
+    }
+
+    /* --------------------------------------------------------------------------
+       大尺寸 (.ant-input-number-lg)
+       -------------------------------------------------------------------------- */
+    &.ant-input-number-lg {
+        --number-input-handler-width: 22px;
+        --number-input-height: 40px;
+        border-radius: 6px !important;
+
+        .ant-input-number-input {
+            font-size: 15px !important;
+            padding: 0 calc(var(--number-input-handler-width) + 4px) 0 8px !important;
+        }
+
+        .ant-input-number-handler {
+            .ant-input-number-handler-up-inner,
+            .ant-input-number-handler-down-inner {
+                font-size: 12px !important;
+            }
+        }
+    }
+
+    /* --------------------------------------------------------------------------
+       无步进按钮场景 (:controls="false" / .ant-input-number-without-controls)
+       完全隐藏按钮区域，右侧不留空，100% 空间留给内容
+       -------------------------------------------------------------------------- */
+    &.ant-input-number-without-controls {
+        .ant-input-number-handler-wrap {
+            display: none !important;
+        }
+
+        .ant-input-number-input {
+            padding-right: 6px !important;
+        }
+
+        &.ant-input-number-sm .ant-input-number-input {
+            padding-right: 4px !important;
+        }
+    }
+
+    /* --------------------------------------------------------------------------
+       禁用状态 (disabled)
+       -------------------------------------------------------------------------- */
+    &.ant-input-number-disabled {
+        background-color: rgba(255, 255, 255, 0.04) !important;
+        border-color: rgba(255, 255, 255, 0.1) !important;
+        color: rgba(255, 255, 255, 0.35) !important;
+        cursor: not-allowed !important;
+
+        .ant-input-number-input {
+            color: rgba(255, 255, 255, 0.35) !important;
+            cursor: not-allowed !important;
+        }
+
+        .ant-input-number-handler-wrap {
+            display: none !important;
+        }
+    }
+}
+
+/* --------------------------------------------------------------------------
+   输入框前后置标签 (如单位 m、°、% 等，支持外层 group-wrapper 结构)
+   -------------------------------------------------------------------------- */
+.ant-input-number-group-wrapper {
+    display: inline-block;
+    vertical-align: middle;
+
+    .ant-input-number-group-addon {
+        background-color: #1a1a1a !important;
+        border: 1px solid rgba(255, 255, 255, 0.18) !important;
+        color: #00f0ff !important;
+        font-weight: 500 !important;
+        font-size: 12px !important;
+        padding: 0 6px !important;
+    }
+}

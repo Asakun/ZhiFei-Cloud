@@ -1,0 +1,243 @@
+/**
+ * Ant Design Vue - DatePicker / RangePicker 全局深色主题覆盖
+ * 弹出层渲染在 body 下，无法用 scoped :deep() 统一覆盖，需要全局样式。
+ */
+
+/* ========== 输入框本体 ========== */
+.ant-picker {
+  background: #1e3461;
+  border-color: #1e3461;
+  color: #fff;
+
+  &:hover {
+    border-color: #3a7af9;
+  }
+
+  &.ant-picker-focused {
+    border-color: #3a7af9;
+    box-shadow: 0 0 0 2px rgba(58, 122, 249, 0.2);
+  }
+
+  .ant-picker-input > input {
+    color: #fff;
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.45);
+    }
+  }
+
+  .ant-picker-suffix,
+  .ant-picker-clear {
+    color: rgba(255, 255, 255, 0.65);
+    background: #1e3461;
+
+    &:hover {
+      color: #fff;
+    }
+  }
+
+  .ant-picker-active-bar {
+    background: #3a7af9;
+  }
+
+  .ant-picker-range-separator {
+    color: rgba(255, 255, 255, 0.65);
+  }
+
+  .ant-picker-separator {
+    color: rgba(255, 255, 255, 0.45);
+  }
+}
+
+/* ========== 弹出面板容器 ========== */
+.ant-picker-dropdown {
+  .ant-picker-panel-container {
+    background: #041428;
+    border: 1px solid #1e3461;
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+  }
+
+  /* ---- header ---- */
+  .ant-picker-header {
+    color: #fff;
+    border-bottom: 1px solid #1e3461;
+
+    button {
+      color: #fff;
+
+      &:hover {
+        color: #3a7af9;
+      }
+    }
+  }
+
+  /* 翻页箭头 pseudo-element（CSS border 绘制） */
+  .ant-picker-prev-icon,
+  .ant-picker-next-icon,
+  .ant-picker-super-prev-icon,
+  .ant-picker-super-next-icon {
+    color: #fff;
+
+    &::before,
+    &::after {
+      border-color: #fff;
+    }
+  }
+
+  .ant-picker-header-view {
+    color: #fff;
+
+    button {
+      color: #fff;
+
+      &:hover {
+        color: #3a7af9;
+      }
+    }
+  }
+
+  /* ---- 日历内容 ---- */
+  .ant-picker-content {
+    th {
+      color: #a6b5cc;
+    }
+  }
+
+  .ant-picker-cell {
+    color: rgba(255, 255, 255, 0.45);  /* 非当前月日期稍暗但可读 */
+
+    &.ant-picker-cell-in-view {
+      color: #fff;
+    }
+
+    &:hover .ant-picker-cell-inner {
+      background: #1e3461 !important;
+    }
+
+    .ant-picker-cell-inner {
+      color: inherit;
+    }
+  }
+
+  /* 今日高亮 */
+  .ant-picker-cell-today .ant-picker-cell-inner::before {
+    border-color: #3a7af9;
+  }
+
+  /* 选中/范围起止 */
+  .ant-picker-cell-selected .ant-picker-cell-inner,
+  .ant-picker-cell-range-start .ant-picker-cell-inner,
+  .ant-picker-cell-range-end .ant-picker-cell-inner {
+    background: #3a7af9 !important;
+    color: #fff !important;
+  }
+
+  /* 范围内区域 */
+  .ant-picker-cell-in-range::before {
+    background: rgba(58, 122, 249, 0.2);
+  }
+
+  .ant-picker-cell-range-start::before,
+  .ant-picker-cell-range-end::before {
+    background: rgba(58, 122, 249, 0.2);
+  }
+
+  /* ---- 时间面板 ---- */
+  .ant-picker-time-panel {
+    background: #041428;
+    border-left: 1px solid #1e3461;
+  }
+
+  .ant-picker-time-panel-column {
+    border-right: 1px solid #1e3461;
+    background: #041428;
+    scrollbar-width: thin;
+    scrollbar-color: #1e3461 transparent;
+
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #1e3461;
+      border-radius: 2px;
+    }
+
+    &::after {
+      background: transparent;
+    }
+  }
+
+  /* 时间面板所有数字：强制白色，防止被内部样式覆盖 */
+  .ant-picker-time-panel-cell .ant-picker-time-panel-cell-inner {
+    color: #d0d9f0 !important;
+    background: transparent !important;
+    opacity: 1 !important;
+
+    &:hover {
+      background: #1e3461 !important;
+      color: #fff !important;
+    }
+  }
+
+  /* 时间列项本身也强制不透明，AntD 会对远离选中项的行加 opacity */
+  .ant-picker-time-panel-cell {
+    opacity: 1 !important;
+  }
+
+  .ant-picker-time-panel-cell.ant-picker-time-panel-cell-selected
+    .ant-picker-time-panel-cell-inner {
+    background: rgba(58, 122, 249, 0.4) !important;
+    color: #fff !important;
+  }
+
+  .ant-picker-time-panel-cell.ant-picker-time-panel-cell-disabled
+    .ant-picker-time-panel-cell-inner {
+    color: rgba(255, 255, 255, 0.2) !important;
+  }
+
+  /* ---- 面板分割线（decade/year/month 切换时） ---- */
+  .ant-picker-decade-panel,
+  .ant-picker-year-panel,
+  .ant-picker-quarter-panel,
+  .ant-picker-month-panel,
+  .ant-picker-week-panel,
+  .ant-picker-date-panel {
+    background: #041428;
+  }
+
+  /* ---- footer ---- */
+  .ant-picker-footer {
+    border-top: 1px solid #1e3461;
+    background: #041428;
+  }
+
+  .ant-picker-ranges {
+    .ant-picker-now-btn {
+      color: #3a7af9;
+
+      &:hover {
+        color: #5b8bfa;
+      }
+    }
+  }
+
+  .ant-picker-ok .ant-btn {
+    color: #fff;
+    background-color: #3a7af9;
+    border-color: #3a7af9;
+
+    &:hover {
+      background-color: #5b8bfa;
+      border-color: #5b8bfa;
+    }
+
+    &[disabled],
+    &.ant-btn-disabled {
+      color: rgba(255, 255, 255, 0.35);
+      background-color: rgba(255, 255, 255, 0.08);
+      border-color: transparent;
+    }
+  }
+}

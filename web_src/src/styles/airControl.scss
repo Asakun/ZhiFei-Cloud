@@ -1,0 +1,278 @@
+// 表格
+.table-box {
+    display: flex;
+    flex-direction: column;
+    margin-right: 15px;
+    height: calc(100vh - 4.5rem);
+    /* 占满视口 */
+}
+
+.searchBox {
+    margin-bottom: 1rem;
+
+    .ant-calendar-picker {
+        color: #D6E5FB !important;
+    }
+
+    .ant-input {
+        color: #D6E5FB !important;
+        background: #1E3461 !important;
+        border: none !important;
+        padding: 5px 11px !important;
+    }
+
+    .ant-select {
+        color: #D6E5FB !important;
+    }
+
+    .ant-select:not(.ant-select-customize-input) .ant-select-selector {
+        background: #1E3461 !important;
+        border: none !important;
+    }
+
+    .ant-calendar-picker-icon {
+        color: #D6D6D6 !important;
+    }
+
+    .ant-calendar-picker-clear {
+        color: #D6D6D6 !important;
+        background-color: transparent !important;
+    }
+
+    .ant-select-arrow {
+        color: #D6D6D6 !important;
+    }
+
+    .ant-input-affix-wrapper {
+        color: #D6D6D6 !important;
+        background: #1E3461 !important;
+        border: none !important;
+        padding: 0px 11px !important;
+    }
+
+    .ant-input:placeholder-shown {
+        color: #86A3CE !important;
+    }
+
+    .ant-input-search-icon {
+        color: #D6D6D6 !important;
+    }
+
+    .ant-select-disabled.ant-select:not(.ant-select-customize-input) .ant-select-selector {
+        color: #D6D6D6 !important;
+    }
+}
+
+.table {
+    background-color: #142B5B;
+    // margin: 1.25rem;
+    // padding: 0 1rem;
+    flex: 1;
+
+    .ant-table-header {
+        background: #142B5B !important;
+    }
+
+    .ant-table {
+        color: #D6E5FB !important;
+    }
+
+    .ant-table-thead>tr>th {
+        background: #142B5B !important;
+        color: #D6E5FB !important;
+        border-bottom: 2px solid #2B4883 !important;
+    }
+
+    .ant-table-fixed-header>.ant-table-content>.ant-table-scroll>.ant-table-body {
+        background: #142B5B !important;
+    }
+
+    .ant-table-row:nth-of-type(1n) {
+        background: #0F234D !important;
+    }
+
+    .ant-table-row:nth-of-type(2n) {
+        background: #142B5B !important;
+    }
+
+    .ant-checkbox-inner {
+        background-color: #284377 !important;
+        border: 1px solid #3A7AF9 !important;
+    }
+
+    /* 全局覆盖 */
+    .ant-table-tbody>tr.ant-table-row:hover>td,
+    .ant-table-tbody>tr.ant-table-row-hover>td,
+    .ant-table-tbody>tr>td.ant-table-cell-row-hover {
+        background-color: #1b317d !important;
+        background: #1b317d !important;
+    }
+
+    .ant-table-tbody>tr>td {
+        background: inherit !important;
+        border-bottom: 1px dashed #2B4883 !important;
+    }
+
+    .ant-pagination-item {
+        background-color: #36599B !important;
+
+        border: none !important;
+    }
+
+    .ant-pagination-item a,
+    .ant-pagination {
+        color: #D6E5FB !important;
+    }
+
+    .ant-pagination-prev .ant-pagination-item-link,
+    .ant-pagination-next .ant-pagination-item-link {
+        background-color: #36599B !important;
+        border: none !important;
+    }
+
+    .ant-pagination-prev a,
+    .ant-pagination-next a {
+        color: #D6E5FB !important;
+    }
+
+    .ant-pagination-disabled .ant-pagination-item-link {
+        color: #D6E5FB !important;
+    }
+
+    .ant-pagination-item-active {
+        background: #3A7AF9 !important;
+        border: none !important;
+    }
+
+    .ant-pagination-item-active a {
+        color: #D6E5FB !important;
+    }
+
+    .ant-select {
+        color: #D6E5FB !important;
+    }
+
+    .ant-select:not(.ant-select-customize-input) .ant-select-selector {
+        background-color: #36599B !important;
+        border: none !important;
+    }
+
+    .ant-select-arrow {
+        color: #B8BDCC !important;
+    }
+
+    .ant-pagination-options-quick-jumper input {
+        background-color: #36599B !important;
+        border: none !important;
+        color: #D6E5FB !important;
+    }
+
+    .ant-table-placeholder {
+        background: #0F234D !important;
+        border: none !important;
+        color: #D6E5FB !important;
+    }
+
+    .ant-table-cell-fix-left,
+    .ant-table-cell-fix-right {
+        background: #142B5B !important;
+    }
+
+    .ant-table-cell-fix-left:nth-of-type(1n),
+    .ant-table-cell-fix-right:nth-of-type(1n) {
+        background: #0F234D !important;
+    }
+
+    .ant-table-cell-fix-left:nth-of-type(2n),
+    .ant-table-cell-fix-right:nth-of-type(2n) {
+        background: #142B5B !important;
+    }
+}
+
+// Drawer 弹窗
+.ant-drawer-mask {
+    background-color: rgba(9, 9, 9, 0.7) !important;
+}
+
+.ant-drawer-content {
+    background-color: #04163A !important;
+    overflow: inherit !important;
+}
+
+.ant-drawer-header {
+    background: #04163A !important;
+    color: #FFFFFF !important;
+    border-bottom: none !important;
+}
+
+.ant-drawer-title {
+    color: #FFFFFF !important;
+    font-weight: bold !important;
+}
+
+.ant-drawer-close {
+    color: #FFFFFF !important;
+}
+
+.airport-info-panel .info-section h3 {
+    color: #D6E5FB !important;
+    border-bottom: 3px solid #203A6E !important;
+}
+
+.ant-descriptions-bordered .ant-descriptions-row {
+    border-bottom: .0625rem solid #203A6E !important;
+}
+
+.ant-descriptions-item-label {
+    background-color: #142B5B !important;
+    color: #D6E5FB !important;
+}
+
+.ant-descriptions-bordered .ant-descriptions-item-label {
+    border-right: .0625rem solid #203A6E !important;
+}
+
+.ant-descriptions-bordered .ant-descriptions-view {
+    border: .0625rem solid #203A6E !important;
+}
+
+.ant-descriptions-item-content {
+    color: #D6E5FB !important;
+}
+
+.ant-descriptions-bordered .ant-descriptions-item-content {
+    border-right: .0625rem solid #203A6E !important;
+}
+
+.ant-badge-status-text {
+    color: #D6E5FB !important;
+}
+
+//modal 弹窗
+.ant-modal-content {
+    background: #04163A !important;
+}
+
+.ant-modal-header {
+    background: #04163A !important;
+    border-bottom: none !important;
+}
+
+.ant-modal-title {
+    color: #fff !important;
+}
+
+.ant-modal-close {
+    color: #fff !important;
+}
+
+.ant-form-item-label>label {
+    color: #D6E5FB !important;
+}
+
+.ant-input {
+    color: #D6E5FB !important;
+    background: #1E3461 !important;
+    border: none !important;
+    padding: 5px 11px !important;
+}
