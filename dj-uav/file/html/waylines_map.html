@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WPML 航线可视化</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #0B0E14;
+            color: #F8FAFC;
+            overflow: hidden;
+        }
+        
+        #map {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        .stats {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(15, 19, 28, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(248, 250, 252, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            min-width: 240px;
+            z-index: 1000;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+        
+        .stats h2 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #38BDF8;
+            letter-spacing: -0.01em;
+        }
+        
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(248, 250, 252, 0.05);
+        }
+        
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+        
+        .stat-label {
+            font-size: 13px;
+            color: #94A3B8;
+        }
+        
+        .stat-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #F8FAFC;
+            font-variant-numeric: tabular-nums;
+        }
+        
+        .upload-section {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(248, 250, 252, 0.1);
+        }
+        
+        .upload-btn {
+            width: 100%;
+            padding: 10px;
+            background: #38BDF8;
+            color: #0B0E14;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .upload-btn:hover {
+            background: #22D3EE;
+        }
+        
+        .marker-section {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(248, 250, 252, 0.1);
+        }
+        
+        .marker-section h3 {
+            font-size: 13px;
+            color: #94A3B8;
+            margin-bottom: 10px;
+        }
+        
+        .coord-input-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .coord-input {
+            flex: 1;
+            padding: 8px;
+            background: rgba(56, 189, 248, 0.1);
+            color: #F8FAFC;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 6px;
+            font-size: 12px;
+            font-variant-numeric: tabular-nums;
+        }
+        
+        .coord-input:focus {
+            outline: none;
+            border-color: #38BDF8;
+            background: rgba(56, 189, 248, 0.15);
+        }
+        
+        .coord-input::placeholder {
+            color: #64748B;
+        }
+        
+        .add-marker-btn {
+            width: 100%;
+            padding: 10px;
+            background: #4FD1C5;
+            color: #0B0E14;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .add-marker-btn:hover {
+            background: #38BDF8;
+        }
+        
+        .legend {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(15, 19, 28, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(248, 250, 252, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            z-index: 1000;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+        
+        .legend h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #38BDF8;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+        
+        .legend-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .legend-line {
+            width: 32px;
+            height: 3px;
+            margin-right: 10px;
+            border-radius: 2px;
+        }
+        
+        .legend-line.nadir {
+            background: #38BDF8;
+        }
+        
+        .legend-line.oblique {
+            background: #F97316;
+        }
+        
+        .legend-line.off {
+            background: #F8FAFC;
+        }
+        
+        .legend-marker {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 2px solid #0B0E14;
+        }
+        
+        .legend-marker.custom {
+            background: #4FD1C5;
+        }
+        
+        .leaflet-popup-content-wrapper {
+            background: #0F131C;
+            color: #F8FAFC;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+        }
+        
+        .leaflet-popup-tip {
+            background: #0F131C;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+        }
+        
+        .popup-content {
+            padding: 4px;
+        }
+        
+        .popup-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #38BDF8;
+        }
+        
+        .popup-row {
+            display: flex;
+            margin-bottom: 4px;
+        }
+        
+        .popup-label {
+            color: #94A3B8;
+            margin-right: 8px;
+            min-width: 70px;
+        }
+        
+        .popup-value {
+            color: #F8FAFC;
+            font-variant-numeric: tabular-nums;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    
+    <div class="stats">
+        <h2>航线统计</h2>
+        <div class="stat-row">
+            <span class="stat-label">总航线数</span>
+            <span class="stat-value" id="stat-waylines">-</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label">总航点数</span>
+            <span class="stat-value" id="stat-waypoints">-</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label">正摄航线</span>
+            <span class="stat-value" id="stat-nadir">-</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label">斜摄航线</span>
+            <span class="stat-value" id="stat-oblique">-</span>
+        </div>
+        <div class="upload-section">
+            <input type="file" id="fileInput" accept=".wpml,.xml" style="display: none">
+            <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                选择 WPML 文件
+            </button>
+            <input type="file" id="jsonFileInput" accept=".json,.geojson" style="display: none">
+            <button class="upload-btn" onclick="document.getElementById('jsonFileInput').click()" style="margin-top: 8px;">
+                选择 JSON/GeoJSON 文件
+            </button>
+        </div>
+        <div class="marker-section">
+            <h3>添加标记点</h3>
+            <input type="text" id="markerName" class="coord-input" placeholder="标记名称" style="margin-bottom: 8px;">
+            <div class="coord-input-group">
+                <input type="number" id="markerLat" class="coord-input" placeholder="纬度" step="0.000001">
+                <input type="number" id="markerLon" class="coord-input" placeholder="经度" step="0.000001">
+            </div>
+            <button class="add-marker-btn" onclick="addCustomMarker()">
+                添加标记
+            </button>
+        </div>
+        <div id="waylineSelector" style="display: none; margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(248, 250, 252, 0.1);">
+            <div style="font-size: 13px; color: #94A3B8; margin-bottom: 8px;">选择航线</div>
+            <select id="waylineSelect" style="width: 100%; padding: 8px; background: rgba(56, 189, 248, 0.1); color: #F8FAFC; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 6px; font-size: 13px; cursor: pointer;">
+                <option value="all">显示全部航线</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="legend">
+        <h3>航线图例</h3>
+        <div class="legend-item">
+            <div class="legend-line nadir"></div>
+            <span>正摄拍照 (-90°)</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-line oblique"></div>
+            <span>斜摄拍照 (-45°)</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-line off"></div>
+            <span>关闭拍照</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-marker custom"></div>
+            <span>自定义标记</span>
+        </div>
+    </div>
+    
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        let waylines = [];
+        let map;
+        let selectedWaylineId = 'all';
+        let polygonLayers = [];
+        let customMarkers = [];
+        
+        // 添加自定义标记点
+        function addCustomMarker() {
+            const name = document.getElementById('markerName').value.trim();
+            const lat = parseFloat(document.getElementById('markerLat').value);
+            const lon = parseFloat(document.getElementById('markerLon').value);
+            
+            if (!name) {
+                alert('请输入标记名称');
+                return;
+            }
+            
+            if (isNaN(lat) || isNaN(lon)) {
+                alert('请输入有效的经纬度');
+                return;
+            }
+            
+            if (lat < -90 || lat > 90) {
+                alert('纬度范围应在 -90 到 90 之间');
+                return;
+            }
+            
+            if (lon < -180 || lon > 180) {
+                alert('经度范围应在 -180 到 180 之间');
+                return;
+            }
+            
+            if (!map) {
+                initMap();
+            }
+            
+            const marker = L.circleMarker([lat, lon], {
+                radius: 6,
+                fillColor: '#4FD1C5',
+                color: '#0B0E14',
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.9
+            }).bindPopup(`
+                <div class="popup-content">
+                    <div class="popup-title">${name}</div>
+                    <div class="popup-row">
+                        <span class="popup-label">经度</span>
+                        <span class="popup-value">${lon.toFixed(6)}</span>
+                    </div>
+                    <div class="popup-row">
+                        <span class="popup-label">纬度</span>
+                        <span class="popup-value">${lat.toFixed(6)}</span>
+                    </div>
+                </div>
+            `).addTo(map);
+            
+            customMarkers.push(marker);
+            
+            map.setView([lat, lon], map.getZoom() < 15 ? 15 : map.getZoom());
+            
+            document.getElementById('markerName').value = '';
+            document.getElementById('markerLat').value = '';
+            document.getElementById('markerLon').value = '';
+            
+            console.log('✅ 添加标记点:', name, lat, lon);
+        } // 保存多边形图层引用
+        
+        // 初始化地图
+        function initMap() {
+            if (!map) {
+                map = L.map('map').setView([29.602, 106.328], 14);
+                
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+                    subdomains: 'abcd',
+                    maxZoom: 20
+                }).addTo(map);
+            }
+        }
+        
+        // 更新统计信息
+        function updateStats() {
+            const displayWaylines = selectedWaylineId === 'all' 
+                ? waylines 
+                : waylines.filter(wl => wl.id === selectedWaylineId);
+            
+            const totalWaypoints = displayWaylines.reduce((sum, wl) => sum + wl.waypoints.length, 0);
+            const nadirCount = displayWaylines.filter(wl => wl.gimbal_angle === -90).length;
+            const obliqueCount = displayWaylines.filter(wl => wl.gimbal_angle === -45).length;
+            
+            document.getElementById('stat-waylines').textContent = `${displayWaylines.length} 条`;
+            document.getElementById('stat-waypoints').textContent = `${totalWaypoints} 个`;
+            document.getElementById('stat-nadir').textContent = `${nadirCount} 条 (-90°)`;
+            document.getElementById('stat-oblique').textContent = `${obliqueCount} 条 (-45°)`;
+        }
+        
+        // 更新航线选择器
+        function updateWaylineSelector() {
+            const selector = document.getElementById('waylineSelect');
+            const container = document.getElementById('waylineSelector');
+            
+            if (waylines.length <= 1) {
+                container.style.display = 'none';
+                return;
+            }
+            
+            container.style.display = 'block';
+            selector.innerHTML = '<option value="all">显示全部航线</option>';
+            
+            waylines.forEach(wl => {
+                const option = document.createElement('option');
+                option.value = wl.id;
+                const type = wl.gimbal_angle === -90 ? '正摄' : '斜摄';
+                option.textContent = `航线 ${wl.id} (${type}, ${wl.waypoints.length} 点)`;
+                selector.appendChild(option);
+            });
+            
+            selector.addEventListener('change', function() {
+                selectedWaylineId = this.value === 'all' ? 'all' : parseInt(this.value);
+                updateStats();
+                renderWaylines();
+            });
+        }
+        
+        // 加载并解析 WPML 文件
+        function loadWPML(file) {
+            console.log('🚁 开始加载 WPML 文件:', file.name);
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    console.log('🧹 清空之前的图层和数据');
+                    clearAllLayers();
+                    const text = e.target.result;
+                    console.log('📄 WPML 文件大小:', (text.length / 1024).toFixed(2), 'KB');
+                    const parser = new DOMParser();
+                    const xmlDoc = parser.parseFromString(text, 'text/xml');
+                    
+                    waylines = [];
+                    const folders = xmlDoc.querySelectorAll('Folder');
+                    
+                    folders.forEach(folder => {
+                        const waylineIdElem = folder.querySelector('waylineId');
+                        if (!waylineIdElem) return;
+                        
+                        const waylineId = waylineIdElem.textContent;
+                        
+                        let gimbalAngle = -90;
+                        const startGroup = folder.querySelector('startActionGroup');
+                        if (startGroup) {
+                            const gimbal = startGroup.querySelector('gimbalPitchRotateAngle');
+                            if (gimbal) {
+                                gimbalAngle = parseFloat(gimbal.textContent);
+                            }
+                        }
+                        
+                        const waypoints = [];
+                        const placemarks = folder.querySelectorAll('Placemark');
+                        
+                        placemarks.forEach(placemark => {
+                            const indexElem = placemark.querySelector('index');
+                            const coordsElem = placemark.querySelector('coordinates');
+                            if (!indexElem || !coordsElem) return;
+                            
+                            const index = indexElem.textContent;
+                            const coords = coordsElem.textContent.trim();
+                            const [lon, lat] = coords.split(',');
+                            
+                            const actions = [];
+                            const actionGroups = placemark.querySelectorAll('actionGroup');
+                            actionGroups.forEach(group => {
+                                const funcElem = group.querySelector('actionActuatorFunc');
+                                const paramElem = group.querySelector('actionActuatorFuncParam');
+                                if (funcElem) {
+                                    actions.push({
+                                        type: funcElem.textContent,
+                                        param: paramElem ? paramElem.textContent : null
+                                    });
+                                }
+                            });
+                            
+                            const hasStart = actions.some(a => a.type === 'startTimeLapse');
+                            const hasStop = actions.some(a => a.type === 'stopTimeLapse');
+                            
+                            waypoints.push({
+                                index: parseInt(index),
+                                lon: parseFloat(lon),
+                                lat: parseFloat(lat),
+                                start_photo: hasStart,
+                                stop_photo: hasStop,
+                                actions: actions
+                            });
+                        });
+                        
+                        waylines.push({
+                            id: parseInt(waylineId),
+                            gimbal_angle: gimbalAngle,
+                            waypoints: waypoints
+                        });
+                    });
+                    
+                    if (waylines.length === 0) {
+                        console.error('❌ 未能解析到航线数据');
+                        alert('未能解析到航线数据，请检查文件格式');
+                        return;
+                    }
+                    
+                    console.log('✅ 解析成功:', waylines.length, '条航线');
+                    waylines.forEach(wl => {
+                        console.log(`  航线 ${wl.id}: ${wl.waypoints.length} 个航点, 云台角度 ${wl.gimbal_angle}°`);
+                    });
+                    
+                    selectedWaylineId = 'all';
+                    updateWaylineSelector();
+                    updateStats();
+                    renderWaylines();
+                    console.log('🗺️ 航线渲染完成');
+                } catch (error) {
+                    console.error('解析 WPML 文件失败:', error);
+                    alert('解析文件失败: ' + error.message);
+                }
+            };
+            
+            reader.readAsText(file);
+        }
+        
+        // 渲染航线
+        function renderWaylines() {
+            if (!map) {
+                initMap();
+            }
+            
+            // 清除航线和航点图层，但保留多边形
+            map.eachLayer(layer => {
+                if ((layer instanceof L.Polyline || layer instanceof L.CircleMarker || layer instanceof L.Marker) &&
+                    !polygonLayers.includes(layer)) {
+                    map.removeLayer(layer);
+                }
+            });
+            
+            // 根据选择过滤航线
+            const displayWaylines = selectedWaylineId === 'all' 
+                ? waylines 
+                : waylines.filter(wl => wl.id === selectedWaylineId);
+            
+            if (displayWaylines.length === 0) return;
+            
+            // 计算中心点
+            let allLats = [];
+            let allLons = [];
+            displayWaylines.forEach(wl => {
+                wl.waypoints.forEach(wp => {
+                    allLats.push(wp.lat);
+                    allLons.push(wp.lon);
+                });
+            });
+            
+            // 自动缩放到航线区域
+            if (allLats.length > 0) {
+                const bounds = L.latLngBounds(
+                    allLats.map((lat, i) => [lat, allLons[i]])
+                );
+                map.fitBounds(bounds, { padding: [50, 50] });
+            }
+            
+            // 绘制航线
+            displayWaylines.forEach(wayline => {
+                const coords = wayline.waypoints.map(wp => [wp.lat, wp.lon]);
+                
+                for (let i = 0; i < coords.length - 1; i++) {
+                    const from = coords[i];
+                    const to = coords[i + 1];
+                    
+                    const currentWp = wayline.waypoints[i];
+                    const nextWp = wayline.waypoints[i + 1];
+                    
+                    let isPhotoOn = true;
+                    if (currentWp.stop_photo || nextWp.start_photo) {
+                        isPhotoOn = false;
+                    }
+                    
+                    let color;
+                    if (!isPhotoOn) {
+                        color = '#F8FAFC';
+                    } else if (wayline.gimbal_angle === -90) {
+                        color = '#38BDF8';
+                    } else {
+                        color = '#F97316';
+                    }
+                    
+                    L.polyline([from, to], {
+                        color: color,
+                        weight: 3,
+                        opacity: 0.8
+                    }).addTo(map);
+                    
+                    const midLat = (from[0] + to[0]) / 2;
+                    const midLon = (from[1] + to[1]) / 2;
+                    
+                    const currentWpForLabel = wayline.waypoints[i];
+                    const actionTypeMap = {
+                        'startTimeLapse': '开始定时拍照',
+                        'stopTimeLapse': '停止定时拍照',
+                        'gimbalRotate': '云台旋转',
+                        'hover': '悬停',
+                        'rotateYaw': '偏航旋转',
+                        'takePhoto': '单次拍照',
+                        'startRecord': '开始录像',
+                        'stopRecord': '停止录像',
+                        'zoom': '变焦',
+                        'focus': '对焦',
+                        'customDirName': '自定义目录名',
+                        'gimbalPitchRotate': '云台俯仰旋转'
+                    };
+                    
+                    let actionsHtmlForLabel = '';
+                    if (currentWpForLabel.actions && currentWpForLabel.actions.length > 0) {
+                        actionsHtmlForLabel = '<div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(248, 250, 252, 0.1);">';
+                        actionsHtmlForLabel += '<div style="font-size: 12px; color: #38BDF8; margin-bottom: 6px;">航点动作</div>';
+                        currentWpForLabel.actions.forEach((action, idx) => {
+                            const typeName = actionTypeMap[action.type] || action.type;
+                            actionsHtmlForLabel += `<div style="font-size: 12px; color: #94A3B8; margin-bottom: 3px;">`;
+                            actionsHtmlForLabel += `${idx + 1}. ${typeName}`;
+                            if (action.param) {
+                                actionsHtmlForLabel += ` <span style="color: #F8FAFC;">(${action.param})</span>`;
+                            }
+                            actionsHtmlForLabel += '</div>';
+                        });
+                        actionsHtmlForLabel += '</div>';
+                    }
+                    
+                    const labelIcon = L.divIcon({
+                        className: 'segment-label',
+                        html: `<div style="background: rgba(11, 14, 20, 0.9); color: #F8FAFC; padding: 2px 6px; border-radius: 4px; font-size: 11px; white-space: nowrap; border: 1px solid rgba(56, 189, 248, 0.3); cursor: pointer;">${wayline.id}-${i}</div>`,
+                        iconSize: [40, 20],
+                        iconAnchor: [20, 10]
+                    });
+                    
+                    L.marker([midLat, midLon], { icon: labelIcon }).bindPopup(`
+                        <div class="popup-content">
+                            <div class="popup-title">航点 ${wayline.id}-${currentWpForLabel.index}</div>
+                            <div class="popup-row">
+                                <span class="popup-label">经度</span>
+                                <span class="popup-value">${currentWpForLabel.lon.toFixed(6)}</span>
+                            </div>
+                            <div class="popup-row">
+                                <span class="popup-label">纬度</span>
+                                <span class="popup-value">${currentWpForLabel.lat.toFixed(6)}</span>
+                            </div>
+                            <div class="popup-row">
+                                <span class="popup-label">云台角度</span>
+                                <span class="popup-value">${wayline.gimbal_angle}°</span>
+                            </div>
+                            <div class="popup-row">
+                                <span class="popup-label">拍照状态</span>
+                                <span class="popup-value">${currentWpForLabel.start_photo ? '开启' : currentWpForLabel.stop_photo ? '关闭' : '继续'}</span>
+                            </div>
+                            ${actionsHtmlForLabel}
+                        </div>
+                    `).addTo(map);
+                }
+                
+                wayline.waypoints.forEach((wp, wpIdx) => {
+                    const isOblique = wayline.gimbal_angle === -45;
+                    let bearing = 0;
+                    
+                    // 计算航点朝向（指向下一个航点的方向）
+                    if (isOblique && wpIdx < wayline.waypoints.length - 1) {
+                        const nextWp = wayline.waypoints[wpIdx + 1];
+                        const dLon = nextWp.lon - wp.lon;
+                        const dLat = nextWp.lat - wp.lat;
+                        bearing = Math.atan2(dLon, dLat) * 180 / Math.PI;
+                    }
+                    
+                    const actionTypeMap = {
+                        'startTimeLapse': '开始定时拍照',
+                        'stopTimeLapse': '停止定时拍照',
+                        'gimbalRotate': '云台旋转',
+                        'hover': '悬停',
+                        'rotateYaw': '偏航旋转',
+                        'takePhoto': '单次拍照',
+                        'startRecord': '开始录像',
+                        'stopRecord': '停止录像',
+                        'zoom': '变焦',
+                        'focus': '对焦',
+                        'customDirName': '自定义目录名',
+                        'gimbalPitchRotate': '云台俯仰旋转'
+                    };
+                    
+                    let actionsHtml = '';
+                    if (wp.actions && wp.actions.length > 0) {
+                        actionsHtml = '<div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(248, 250, 252, 0.1);">';
+                        actionsHtml += '<div style="font-size: 12px; color: #38BDF8; margin-bottom: 6px;">航点动作</div>';
+                        wp.actions.forEach((action, idx) => {
+                            const typeName = actionTypeMap[action.type] || action.type;
+                            actionsHtml += `<div style="font-size: 12px; color: #94A3B8; margin-bottom: 3px;">`;
+                            actionsHtml += `${idx + 1}. ${typeName}`;
+                            if (action.param) {
+                                actionsHtml += ` <span style="color: #F8FAFC;">(${action.param})</span>`;
+                            }
+                            actionsHtml += '</div>';
+                        });
+                        actionsHtml += '</div>';
+                    }
+                    
+                    const marker = L.circleMarker([wp.lat, wp.lon], {
+                        radius: 4,
+                        fillColor: '#38BDF8',
+                        color: '#0B0E14',
+                        weight: 1,
+                        opacity: 1,
+                        fillOpacity: 0.9
+                    }).bindPopup(`
+                        <div class="popup-content">
+                            <div class="popup-title">航点 ${wayline.id}-${wp.index}</div>
+                            <div class="popup-row">
+                                <span class="popup-label">经度</span>
+                                <span class="popup-value">${wp.lon.toFixed(6)}</span>
+                            </div>
+                            <div class="popup-row">
+                                <span class="popup-label">纬度</span>
+                                <span class="popup-value">${wp.lat.toFixed(6)}</span>
+                            </div>
+                            <div class="popup-row">
+                                <span class="popup-label">云台角度</span>
+                                <span class="popup-value">${wayline.gimbal_angle}°</span>
+                            </div>
+                            <div class="popup-row">
+                                <span class="popup-label">拍照状态</span>
+                                <span class="popup-value">${wp.start_photo ? '开启' : wp.stop_photo ? '关闭' : '继续'}</span>
+                            </div>
+                            ${actionsHtml}
+                        </div>
+                    `).addTo(map);
+                    
+                    // 为斜摄航点添加方向箭头
+                    if (isOblique && wpIdx < wayline.waypoints.length - 1) {
+                        const arrowIcon = L.divIcon({
+                            className: 'direction-arrow',
+                            html: `<div style="transform: rotate(${bearing}deg); width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 4L12 20M12 4L8 8M12 4L16 8" stroke="#F97316" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>`,
+                            iconSize: [24, 24],
+                            iconAnchor: [12, 12]
+                        });
+                        
+                        L.marker([wp.lat, wp.lon], { icon: arrowIcon }).addTo(map);
+                    }
+                });
+            });
+        }
+
+        // 加载并解析 JSON 航点文件
+        function loadJSON(file) {
+            console.log('📦 开始加载 JSON 文件:', file.name);
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                try {
+                    console.log('🧹 清空之前的图层和数据');
+                    clearAllLayers();
+                    const text = e.target.result;
+                    console.log('📄 JSON 文件大小:', (text.length / 1024).toFixed(2), 'KB');
+                    const jsonData = JSON.parse(text);
+
+                    // 检测 GeoJSON 格式
+                    if (jsonData.type === 'FeatureCollection' || jsonData.type === 'Feature' || jsonData.geometry) {
+                        console.log('🌐 检测到 GeoJSON 格式，类型:', jsonData.type);
+                        loadGeoJSON(jsonData);
+                        return;
+                    }
+
+                    // 普通 JSON 航点数组格式
+                    if (!Array.isArray(jsonData) || jsonData.length === 0) {
+                        alert('JSON 文件格式错误：应为航点数组或 GeoJSON');
+                        return;
+                    }
+
+                    // 转换为内部格式
+                    console.log('📊 解析普通 JSON 数组格式:', jsonData.length, '个航点');
+                    waylines = [{
+                        id: 1,
+                        gimbal_angle: -90,
+                        waypoints: jsonData.map((wp, idx) => ({
+                            index: idx,
+                            lon: wp.longitude,
+                            lat: wp.latitude,
+                            start_photo: idx === 0,
+                            stop_photo: idx === jsonData.length - 1
+                        }))
+                    }];
+
+                    console.log('✅ JSON 解析成功: 1 条航线,', jsonData.length, '个航点');
+                    selectedWaylineId = 'all';
+                    updateWaylineSelector();
+                    updateStats();
+                    renderWaylines();
+                    console.log('🗺️ 航线渲染完成');
+                } catch (error) {
+                    console.error('解析 JSON 文件失败:', error);
+                    alert('解析文件失败: ' + error.message);
+                }
+            };
+
+            reader.readAsText(file);
+        }
+
+        // 清空所有图层和数据
+        function clearAllLayers() {
+            if (map) {
+                map.eachLayer(layer => {
+                    if (layer instanceof L.Polyline || layer instanceof L.CircleMarker || 
+                        layer instanceof L.Marker || layer instanceof L.Polygon) {
+                        map.removeLayer(layer);
+                    }
+                });
+            }
+            waylines = [];
+            polygonLayers = [];
+            customMarkers = [];
+            selectedWaylineId = 'all';
+        }
+        
+        // 加载并解析 GeoJSON
+        function loadGeoJSON(geojson) {
+            try {
+                console.log('🌍 开始解析 GeoJSON 数据');
+                if (!map) {
+                    initMap();
+                }
+                
+                // 注意：不在这里清空数据，因为 loadJSON 已经调用过 clearAllLayers
+                // 只重置数组用于收集新数据
+                waylines = [];
+                polygonLayers = [];
+                
+                let allLats = [];
+                let allLons = [];
+                
+                if (geojson.type === 'FeatureCollection') {
+                    console.log('📦 FeatureCollection 包含', geojson.features.length, '个要素');
+                    geojson.features.forEach(feature => {
+                        if (feature.geometry.type === 'Polygon') {
+                            console.log('  🟨 发现多边形边界');
+                            // 绘制多边形边界（黄色）
+                            const polygonCoords = feature.geometry.coordinates[0].map(coord => [coord[1], coord[0]]);
+                            const polygon = L.polygon(polygonCoords, {
+                                color: '#FCD34D',
+                                fillColor: '#FCD34D',
+                                fillOpacity: 0.1,
+                                weight: 2
+                            }).bindPopup(`
+                                <div class="popup-content">
+                                    <div class="popup-title">${feature.properties.name || '测区边界'}</div>
+                                </div>
+                            `).addTo(map);
+                            
+                            polygonLayers.push(polygon); // 保存多边形图层引用
+                            
+                            polygonCoords.forEach(coord => {
+                                allLats.push(coord[0]);
+                                allLons.push(coord[1]);
+                            });
+                            
+                        } else if (feature.geometry.type === 'LineString') {
+                            // 提取航线坐标
+                            const coordinates = feature.geometry.coordinates;
+                            console.log('  🟦 发现航线:', coordinates.length, '个航点');
+                            
+                            waylines.push({
+                                id: 1,
+                                gimbal_angle: -90,
+                                waypoints: coordinates.map((coord, idx) => ({
+                                    index: idx,
+                                    lon: coord[0],
+                                    lat: coord[1],
+                                    start_photo: idx === 0,
+                                    stop_photo: idx === coordinates.length - 1
+                                }))
+                            });
+                            
+                            coordinates.forEach(coord => {
+                                allLats.push(coord[1]);
+                                allLons.push(coord[0]);
+                            });
+                        }
+                    });
+                } else if (geojson.type === 'Feature') {
+                    const coordinates = extractCoordinates(geojson.geometry);
+                    waylines = [{
+                        id: 1,
+                        gimbal_angle: -90,
+                        waypoints: coordinates.map((coord, idx) => ({
+                            index: idx,
+                            lon: coord[0],
+                            lat: coord[1],
+                            start_photo: idx === 0,
+                            stop_photo: idx === coordinates.length - 1
+                        }))
+                    }];
+                } else if (geojson.geometry) {
+                    const coordinates = extractCoordinates(geojson.geometry);
+                    waylines = [{
+                        id: 1,
+                        gimbal_angle: -90,
+                        waypoints: coordinates.map((coord, idx) => ({
+                            index: idx,
+                            lon: coord[0],
+                            lat: coord[1],
+                            start_photo: idx === 0,
+                            stop_photo: idx === coordinates.length - 1
+                        }))
+                    }];
+                }
+                
+                if (waylines.length === 0 && allLats.length === 0) {
+                    console.error('❌ GeoJSON 中未找到有效数据');
+                    alert('GeoJSON 中未找到有效数据');
+                    return;
+                }
+                
+                console.log('✅ GeoJSON 解析成功:', waylines.length, '条航线,', polygonLayers.length, '个多边形');
+                
+                selectedWaylineId = 'all';
+                updateWaylineSelector();
+                updateStats();
+                
+                // 绘制航线
+                if (waylines.length > 0) {
+                    renderWaylines();
+                    console.log('🗺️ 航线渲染完成');
+                }
+                
+                // 自动缩放到显示所有内容
+                if (allLats.length > 0) {
+                    const bounds = L.latLngBounds(
+                        allLats.map((lat, i) => [lat, allLons[i]])
+                    );
+                    map.fitBounds(bounds, { padding: [50, 50] });
+                    console.log('📍 地图自动定位到边界');
+                }
+                
+            } catch (error) {
+                console.error('解析 GeoJSON 失败:', error);
+                alert('解析 GeoJSON 失败: ' + error.message);
+            }
+        }
+        
+        // 从 GeoJSON Geometry 提取坐标
+        function extractCoordinates(geometry) {
+            if (!geometry || !geometry.type) return [];
+            
+            switch (geometry.type) {
+                case 'Point':
+                    return [geometry.coordinates];
+                case 'LineString':
+                    return geometry.coordinates;
+                case 'Polygon':
+                    return geometry.coordinates[0]; // 外环
+                case 'MultiPoint':
+                case 'MultiLineString':
+                    return geometry.coordinates.flat();
+                case 'MultiPolygon':
+                    return geometry.coordinates[0][0]; // 第一个多边形的外环
+                default:
+                    return [];
+            }
+        }
+        
+        // 文件选择事件监听
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                loadWPML(file);
+                // 重置 input，允许重复选择同一文件
+                this.value = '';
+            }
+        });
+        
+        document.getElementById('jsonFileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                loadJSON(file);
+                // 重置 input，允许重复选择同一文件
+                this.value = '';
+            }
+        });
+        
+        // 页面加载时初始化地图
+        initMap();
+    </script>
+</body>
+</html>
