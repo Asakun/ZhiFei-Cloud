@@ -1,0 +1,27 @@
+import request, { IWorkspaceResponse } from '@/api/http/request'
+import { DeviceCmd, DeviceCmdItemAction } from '@/types/device-cmd'
+import { dockCmdResponseTime } from '@/api/http/cmd-responseTime'
+
+const CMD_API_PREFIX = '/control/api/v1'
+
+export interface SendCmdParams {
+  dock_sn: string, // 机场cn
+  device_cmd: DeviceCmd // 指令
+}
+
+export interface PostSendCmdBody {
+  action: DeviceCmdItemAction
+}
+/**
+ * 发送机场控制指令
+ * @param params
+ * @returns
+ */
+// /control/api/v1/devices/{dock_sn}/jobs/{service_identifier}
+export async function postSendCmd (params: SendCmdParams, body?: PostSendCmdBody): Promise<IWorkspaceResponse<any>> {
+  const resp = await request.post(`${CMD_API_PREFIX}/devices/${params.dock_sn}/jobs/${params.device_cmd}`, body)
+  if (resp.data && resp.data.data && typeof resp.data.data.time === 'number') {
+    dockCmdResponseTime.value = resp.data.data.time
+  }
+  return resp.data
+}

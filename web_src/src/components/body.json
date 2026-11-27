@@ -1,0 +1,165 @@
+{
+  "template_type": "waypoint",
+  "take_off_ref_point": "22.581115,113.940282,16.035026",
+  "drone_type": 91,
+  "sub_drone_type": 1,
+  "payload_type": 81,
+  "payload_sub_type": 0,
+  "payload_position": 0,
+  "image_format": "visable,ir",
+  "finish_action": "autoLand",
+  "exit_on_rc_lost_action": "goBack",
+  "global_height": 100,
+  "auto_flight_speed": 10,
+  "waypoint_heading_req": {
+    "waypoint_heading_mode": "followWayline"
+  },
+  "waypoint_turn_req": {
+    "waypoint_turn_mode": "toPointAndStopWithDiscontinuityCurvature"
+  },
+  "gimbal_pitch_mode": "usePointSetting",
+  "start_action_list": [
+    {
+      "action_index": 0,
+      "gimbal_yaw_rotate_angle": -90
+    },
+    {
+      "action_index": 1,
+      "hover_time": 30
+    }
+  ],
+  "route_point_list": [
+    {
+      "route_point_index": 0,
+      "longitude": 113.940343144377,
+      "latitude": 22.5813699888658,
+      "action_group_list": [
+        {
+          "action_group_id": 0,
+          "action_group_start_index": 0,
+          "action_group_end_index": 0,
+          "action_trigger_type": "reachPoint",
+          "actions": [
+            {
+              "action_index": 0,
+              "take_photo_type": 0,
+              "use_global_image_format": 1
+            },
+            {
+              "action_index": 1,
+              "hover_time": 20
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "route_point_index": 1,
+      "longitude": 113.942924142576,
+      "latitude": 22.5814115656784,
+      "action_group_list": [
+        {
+          "action_group_id": 1,
+          "action_group_start_index": 1,
+          "action_group_end_index": 1,
+          "action_trigger_type": "reachPoint",
+          "actions": [
+            {
+              "action_index": 0,
+              "hover_time": 20
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "route_point_index": 2,
+      "longitude": 113.942943025065,
+      "latitude": 22.5810880647388,
+      "action_group_list": [
+        {
+          "action_group_id": 2,
+          "action_group_start_index": 2,
+          "action_group_end_index": 2,
+          "action_trigger_type": "reachPoint",
+          "actions": [
+            {
+              "action_index": 0,
+              "take_photo_type": 1,
+              "use_global_image_format": 1
+            },
+            {
+              "action_index": 1,
+              "start_record": true,
+              "use_global_image_format": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "route_point_index": 3,
+      "longitude": 113.940341392538,
+      "latitude": 22.5810461555712
+    },
+    {
+      "route_point_index": 4,
+      "longitude": 113.940339640707,
+      "latitude": 22.5807223222765,
+      "action_group_list": [
+        {
+          "action_group_id": 2,
+          "action_group_start_index": 2,
+          "action_group_end_index": 2,
+          "action_trigger_type": "reachPoint",
+          "actions": [
+            {
+              "action_index": 0,
+              "take_photo_type": 1,
+              "use_global_image_format": 1
+            },
+            {
+              "action_index": 1,
+              "stop_record": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "route_point_index": 5,
+      "longitude": 113.942961907465,
+      "latitude": 22.5807645637969
+    },
+    {
+      "route_point_index": 6,
+      "longitude": 113.942980789776,
+      "latitude": 22.5804410628529
+    },
+    {
+      "route_point_index": 7,
+      "longitude": 113.940337888885,
+      "latitude": 22.5803984889819
+    },
+    {
+      "route_point_index": 8,
+      "longitude": 113.940336137071,
+      "latitude": 22.5800746556873
+    },
+    {
+      "route_point_index": 9,
+      "longitude": 113.942997724328,
+      "latitude": 22.5801175305482
+    },
+    {
+      "route_point_index": 10,
+      "longitude": 113.942999671999,
+      "latitude": 22.5801175619067
+    },
+    {
+      "route_point_index": 11,
+      "longitude": 113.941647829558,
+      "latitude": 22.580729324342
+    }
+  ]
+}
